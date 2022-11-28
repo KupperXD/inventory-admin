@@ -1,0 +1,2 @@
+export const AUTH_TOKEN_HEADER = 'X-AUTH-TOKEN';
+export const SSESION_TOKEN_COOKIE_NAME = 'PHPSESSID';
