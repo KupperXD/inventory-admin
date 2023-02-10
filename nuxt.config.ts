@@ -1,9 +1,12 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+
 export default defineNuxtConfig({
-    css: ['vuetify/lib/styles/main.sass', '@mdi/font/css/materialdesignicons.min.css'],
-    build: {
-        transpile: ['vuetify'],
+    typescript: {
+        typeCheck: true,
     },
+    modules: ['@nuxtjs/tailwindcss', '@pinia/nuxt'],
+    css: [],
+    build: {},
     runtimeConfig: {
         baseUrl: '',
         baseApiServerUrl: '',
@@ -12,6 +15,5 @@ export default defineNuxtConfig({
             baseApiServerUrl: '',
         }
     },
-    vite: {
-    }
+    vite: {}
 })

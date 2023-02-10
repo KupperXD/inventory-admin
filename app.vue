@@ -1,12 +1,12 @@
 <template>
-  <div>
-    <NuxtWelcome />
-  </div>
+    <NuxtLayout>
+        <NuxtPage></NuxtPage>
+    </NuxtLayout>
 </template>
 <script lang="ts" setup>
-const config = useRuntimeConfig();
+import {useRequestEvent} from "#imports";
 
-console.log('config', {
-    config,
-});
+const {
+    $auth,
+} = useNuxtApp();
 </script>
