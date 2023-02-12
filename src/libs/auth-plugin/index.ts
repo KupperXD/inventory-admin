@@ -4,7 +4,8 @@ import {BaseResponse} from "~/src/types";
 import {ApiErrorResponse} from "~/src/types/errors";
 import useAuthState from "~/src/libs/useAuthState";
 import {appendHeader, H3Event} from 'h3';
-
+import SetCookieParser, {Cookie} from 'set-cookie-parser';
+import {navigateTo} from "#imports";
 
 type User = {
     id: number;
@@ -26,13 +27,14 @@ const isError = (response: BaseResponse<unknown> | ApiErrorResponse): response i
 }
 
 export default class AuthPlugin {
+    private ACCESS_TOKEN_PROPERTY_NAME = 'Authentication';
     private readonly nuxtApp: NuxtApp;
     public store = useAuthState();
 
     constructor(nuxtApp: NuxtApp) {
         this.nuxtApp = nuxtApp;
 
-        const accessCookie = useCookie('Authentication');
+        const accessCookie = useCookie(this.ACCESS_TOKEN_PROPERTY_NAME);
         const refreshCookie = useCookie('Refresh');
 
         this.store.setAccessToken(accessCookie.value ?? null);
@@ -41,6 +43,9 @@ export default class AuthPlugin {
 
 
     public async init() {
+        if (this.store.user) {
+            return true;
+        }
         await this.fetchCurrentUser();
     }
 
@@ -74,22 +79,41 @@ export default class AuthPlugin {
         }
     }
 
+    private async doRequestFetchUser(
+        accessToken: string | null = null
+    ) {
+        const headers = await callWithNuxt(this.nuxtApp, () => useRequestHeaders(['cookie']));
+        const baseUrl = await this.getBaseUrl();
+        let cookies = headers.cookie ?? '';
+
+        if (process.server && accessToken) {
+            const constParsedCookie: Cookie[] = SetCookieParser.parse(headers.cookie ?? '');
+
+            cookies = constParsedCookie.map(cookie => {
+                if (cookie.name === this.ACCESS_TOKEN_PROPERTY_NAME) {
+                    cookie.value = accessToken;
+                }
+                return `${cookie.name}=${cookie.value};`
+            }).join(' ');
+        }
+
+        return await $fetch.raw<BaseResponse<User> | ApiErrorResponse>(`${baseUrl}api/auth/current-user`, {
+            method: 'get',
+            headers: {
+                cookie: cookies,
+            },
+            retry: 0,
+        });
+    }
+
     public async fetchCurrentUser() {
         try {
-            const headers = await callWithNuxt(this.nuxtApp, () => useRequestHeaders(['cookie']));
-            const baseUrl = await this.getBaseUrl();
-            const response = await $fetch.raw<BaseResponse<User> | ApiErrorResponse>(`${baseUrl}api/auth/current-user`, {
-                method: 'get',
-                headers: {
-                    cookie: headers.cookie ?? '',
-                },
-                retry: 0,
-            });
+            const response = await this.doRequestFetchUser();
 
             if (response._data && !isError(response._data)) {
                 this.store.setUser(response._data.response);
+                return;
             }
-            await this.updateAccessToken();
         } catch (e) {
             const err = e as FetchError;
 
@@ -98,29 +122,95 @@ export default class AuthPlugin {
             }
 
             try {
-                await this.updateAccessToken();
-            } catch (e) {}
+                const token = await this.updateAccessToken();
+
+                if (!token) {
+                    throw new Error('Token not found');
+                }
+
+                await this.doRequestFetchUser(token);
+
+            } catch (e) {
+                await this.logout();
+            }
         }
     }
 
     public async updateAccessToken() {
         try {
+            console.log('updateAccessToken');
             const headers = await callWithNuxt(this.nuxtApp, () => useRequestHeaders(['cookie']));
-            const response = await $fetch.raw(`http://api:9090/api/auth/refresh`, {
+            const baseUrl = await this.getBaseUrl();
+            const response = await $fetch.raw<{response: { access_token: string}}>(`${baseUrl}api/auth/refresh`, {
+                retry: 0,
                 headers: {
                     cookie: headers.cookie ?? '',
                 },
             });
+
             const cookies = (response.headers.get('set-cookie') || '');
+            const parsedCookies: Cookie[] = SetCookieParser.parse(cookies);
+            const accessToken = parsedCookies.find((cookie) => {
+                if (cookie.name !== this.ACCESS_TOKEN_PROPERTY_NAME) {
+                    return;
+                }
+
+                return cookie;
+            });
 
             if (process.server && cookies && this.nuxtApp.ssrContext?.event) {
                 appendHeader(this.nuxtApp.ssrContext?.event, 'set-cookie', cookies);
             }
 
+            if (accessToken && accessToken.value) {
+                this.store.setAccessToken(accessToken.value)
+            }
+
+            console.log('access token', {
+                accesToken: accessToken,
+            });
+
+            return accessToken?.value ?? null;
+
+        } catch (e) {
+            console.log('updateAccessToken  error', {
+               e,
+            });
+            throw e;
+        }
+    }
+
+    public async logout() {
+        const baseUrl = await this.getBaseUrl();
+
+        try {
+            const response = await $fetch.raw(`${baseUrl}api/auth/log-out`, {
+                method: 'post',
+                retry: 0,
+            });
+            this.store.setAccessToken(null);
+            this.store.setRefreshToken(null);
+            this.store.setUser(null);
+
+            const cookies = (response.headers.get('set-cookie') || '');
+
+            if (process.server && cookies && this.nuxtApp.ssrContext?.event) {
+                appendHeader(this.nuxtApp.ssrContext?.event, 'set-cookie', cookies);
+            }
         } catch (e) {
             console.log('e', {
-                e
+                e,
             });
         }
+    }
+
+    private async goToLoginRoute() {
+        const currentPath = this.nuxtApp?.ssrContext?.event?.path ?? '';
+
+        if (currentPath.includes('login')) {
+            return true;
+        }
+
+        await callWithNuxt(this.nuxtApp, () => navigateTo('/login'));
     }
 }

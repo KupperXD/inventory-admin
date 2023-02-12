@@ -42,6 +42,7 @@ import {FieldType} from "~/src/types";
 import {Ref} from "vue";
 import {ApiError, ApiErrorResponse, ApiValidationError} from "~/src/types/errors";
 import {transformApiError} from "~/src/utils/errors";
+import {navigateTo} from "#app";
 
 definePageMeta({
     layout: 'without-auth',
@@ -85,7 +86,6 @@ const resetErrors = (fields: {error: string | null}[]) => {
     fields.forEach(field => field.error = '');
 };
 
-const router = useRouter();
 const submitFormHandler = async () => {
     isLoading.value = true;
     resetErrors([nameField, passwordField]);
@@ -97,7 +97,7 @@ const submitFormHandler = async () => {
         });
 
         if (response) {
-            router.push('/');
+            navigateTo('/')
         }
     } catch (e) {
         const err = e as ApiError;
