@@ -1,7 +1,7 @@
 <template>
     <div>
-        <h1 class="text-dark">
-            123
+        <h1 class="text-dark mb-6 font-semibold text-slate-700">
+            Главная
         </h1>
     </div>
 </template>
