@@ -30,4 +30,24 @@ declare module 'vue' {
         $auth: AuthPlugin,
     }
 }
-export { }
+
+export type TableHeader = { title: string }[];
+
+export type TableRow = Record<string, unknown>[];
+
+export type Breadcrumbs = {
+    title: string,
+    path?: string,
+}[];
+
+export type Employee = User;
+
+export type List<T> = {
+    currentPage: number;
+    lastPage: number;
+    perPage: number;
+    from: number;
+    to: number;
+    total: number;
+    items: T[];
+};

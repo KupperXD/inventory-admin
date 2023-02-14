@@ -6,9 +6,18 @@
     </div>
 </template>
 <script lang="ts" setup>
-import {definePageMeta} from "#imports";
+import {definePageMeta, onMounted} from "#imports";
+import useBreadcrumbState from "~/src/store/useBreadcrumbState";
 
 definePageMeta({
     layout: 'default',
-})
+});
+
+const store = useBreadcrumbState();
+
+onMounted(() => {
+    store.setBreadcrumbs([{
+        title: 'Главная'
+    }])
+});
 </script>
