@@ -11,7 +11,7 @@ export default defineNuxtConfig({
         baseUrl: '',
         baseApiServerUrl: '',
         public: {
-            baseUrl: '',
+            baseUrl: '/',
             baseApiServerUrl: '',
         }
     },

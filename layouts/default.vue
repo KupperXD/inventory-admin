@@ -14,6 +14,6 @@
     </div>
 </template>
 <script lang="ts" setup>
-import Sidebar from "~/components/Sidebar";
-import Breadcrumbs from "~/components/Breadcrumbs.vue";
+import Sidebar from "~/components/common/Sidebar.vue";
+import Breadcrumbs from "~/components/common/Breadcrumbs.vue";
 </script>

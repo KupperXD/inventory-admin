@@ -18,8 +18,8 @@
                             {{ value }}
                         </div>
                         <div class="table-cell text-right p-3 align-middle border-b dark:border-white/40">
-                            <button type="button" class="px-3">edit</button>
-                            <button type="button" class="px-3">delete</button>
+                            <button @click="() => clickEditHandler(row.id)" type="button" class="px-3">edit</button>
+                            <button @click="() => clickDeleteHandler(row.id)" type="button" class="px-3">delete</button>
                         </div>
                     </div>
                 </div>
@@ -37,4 +37,23 @@ interface PropsInterface {
 }
 
 const props = defineProps<PropsInterface>();
+
+const emit = defineEmits([
+    'clickEdit:value',
+    'clickDelete:value',
+]);
+
+/**
+ * Клик на кнопку редактирования
+ */
+const clickEditHandler = (id: string) => {
+    emit('clickEdit:value', id);
+};
+
+/**
+ * Клик на кнопку удаления
+ */
+const clickDeleteHandler = (id: string) => {
+    emit('clickDelete:value', id);
+};
 </script>

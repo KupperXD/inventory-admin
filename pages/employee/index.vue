@@ -1,22 +1,40 @@
 <template>
     <div>
-        <h1 class="text-dark mb-6 font-semibold text-slate-700">
-            Сотрудники
-        </h1>
+        <div class="flex items-center justify-between mb-6">
+            <h1 class="text-dark font-semibold text-slate-700">
+                Сотрудники
+            </h1>
+            <nuxt-link
+                to="/employee/create"
+                class="btn btn-primary">
+                Добавить сотрудника
+            </nuxt-link>
+        </div>
         <div class="flex flex-wrap -mx-3">
-            <UiTable :tableHeader="employeeTableHeader" :tableRow="[]"/>
+            <UiTable
+                :tableHeader="employeeTableHeader"
+                :tableRow="employees"
+                @clickEdit:value="editEmployeeHandler"
+                @clickDelete:value="deleteEmployeeHandler"
+            />
         </div>
     </div>
 </template>
 <script lang="ts" setup>
-import {definePageMeta, onMounted, ref} from "#imports";
-import {Employee, TableHeader, List} from "~/src/types";
+import {computed, definePageMeta, navigateTo, onMounted, ref, useAsyncData} from "#imports";
+import {Employee, TableHeader, List, SuccessResponse} from "~/src/types";
 import useBreadcrumbState from "~/src/store/useBreadcrumbState";
 import DoRequest from "~/src/services/DoRequest";
 
 definePageMeta({
     layout: 'default',
 });
+
+//TODO не работает при первой загрузке
+const { data, pending, refresh } = await useAsyncData(
+    () => new DoRequest().fetchData<List<Employee>>('get', '/api/employee'), {watch: []}
+);
+
 const store = useBreadcrumbState();
 
 const employeeTableHeader: TableHeader = [
@@ -25,17 +43,28 @@ const employeeTableHeader: TableHeader = [
     {title: 'Почта'},
 ];
 
-const employees = ref<Employee[]>([]);
+const employees = computed(() => {
+    return data.value?.response.items ?? [];
+})
+
+const editEmployeeHandler = (id: string) => {
+    navigateTo(`/employee/${id}`);
+}
+
+const deleteEmployeeHandler = async (id: string) => {
+    await new DoRequest().fetchData<SuccessResponse>('delete', `/api/employee/${id}`);
+    refresh();
+}
 
 onMounted(async () => {
-    store.setBreadcrumbs([{
-        title: 'Главная',
-        path: '/',
-    },{
-        title: 'Сотрудники',
-    }]);
-
-    const response = await new DoRequest().fetchData<List<Employee>>('get', 'api/employee');
-    employees.value = response?.response.items ?? [];
+    store.setBreadcrumbs([
+        {
+            title: 'Главная',
+            path: '/',
+        },
+        {
+            title: 'Сотрудники',
+        }
+    ]);
 });
 </script>

@@ -6,28 +6,42 @@ export default class DoRequest {
         try {
             await $fetch<BaseResponse<List<Employee>>>('/api/auth/refresh', {
                 method: 'get',
+                retry: 0,
             });
         } catch(e) {
-            const err = e as FetchError;
-            console.log({'error refresh token': err});
+            return Promise.reject();
         }
     }
 
-    public async fetchData<T>(method: 'post' | 'get', endpoint: string, params: Record<string, string> = {}) {
-        const options = method === 'post' ? {body: params} : {};
+    public async fetchData<T>(
+        method: 'post' | 'get' | 'PATCH' | 'delete',
+        endpoint: string,
+        params: Record<string, unknown> = {}
+    ) {
+        const options = (method === 'post' || method === 'PATCH') ? {body: params} : {};
         try {
             return await $fetch<BaseResponse<T>>(endpoint, {
                 method: method,
+                retry: 0,
                 ...options,
             });
         } catch (e) {
             const err = e as FetchError;
 
+            if (!(err.response?.status === 401)) {
+                throw err;
+            }
+
             try {
                 await this.refreshToken();
-                await this.fetchData(method, endpoint, params);
+                return await $fetch<BaseResponse<T>>(endpoint, {
+                    method: method,
+                    retry: 0,
+                    ...options,
+                });
             } catch (e) {
-                console.log({'error fetch data': err});
+                console.log({'error': err});
+                return Promise.reject(e)
             }
         }
     }

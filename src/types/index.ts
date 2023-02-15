@@ -12,6 +12,12 @@ export type BaseResponse<T> = {
     response: T;
 };
 
+export type SuccessResponse = {
+    response: {
+        success: boolean;
+    }
+}
+
 export type User = {
     email: string;
     id: number;

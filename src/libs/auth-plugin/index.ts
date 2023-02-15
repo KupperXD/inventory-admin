@@ -49,7 +49,7 @@ export default class AuthPlugin {
         await this.fetchCurrentUser();
     }
 
-    private async getBaseUrl(): Promise<string> {
+    public async getBaseUrl(): Promise<string> {
         const config = await callWithNuxt(this.nuxtApp, () => useRuntimeConfig());
 
         return this.nuxtApp.ssrContext ? config.public.baseApiServerUrl : config.public.baseUrl;
