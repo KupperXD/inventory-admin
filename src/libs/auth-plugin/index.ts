@@ -88,13 +88,18 @@ export default class AuthPlugin {
 
         if (process.server && accessToken) {
             const constParsedCookie: Cookie[] = SetCookieParser.parse(headers.cookie ?? '');
-
+            let hasAccessCookie = false;
             cookies = constParsedCookie.map(cookie => {
                 if (cookie.name === this.ACCESS_TOKEN_PROPERTY_NAME) {
                     cookie.value = accessToken;
+                    hasAccessCookie = true;
                 }
                 return `${cookie.name}=${cookie.value};`
             }).join(' ');
+
+            if (!hasAccessCookie) {
+                cookies = `${cookies}${this.ACCESS_TOKEN_PROPERTY_NAME}=${accessToken};`;
+            }
         }
 
         return await $fetch.raw<BaseResponse<User> | ApiErrorResponse>(`${baseUrl}api/auth/current-user`, {
@@ -128,6 +133,8 @@ export default class AuthPlugin {
                     throw new Error('Token not found');
                 }
 
+                const accessCookie = useCookie(this.ACCESS_TOKEN_PROPERTY_NAME);
+                accessCookie.value = token;
                 await this.doRequestFetchUser(token);
 
             } catch (e) {
@@ -136,9 +143,28 @@ export default class AuthPlugin {
         }
     }
 
-    public async updateAccessToken() {
+    private updateAccess: {
+        resolve: (...args: unknown[]) => void;
+        reject: (...args: unknown[]) => void;
+    }[] = [];
+    private isUpdateAccess = false;
+
+    public refresh() {
+        if (this.isUpdateAccess) {
+            return new Promise((resolve, reject) => {
+                this.updateAccess.push({
+                    resolve: resolve,
+                    reject,
+                });
+            });
+        }
+
+        return this.updateAccessToken();
+    }
+
+    private async updateAccessToken() {
+        this.isUpdateAccess = true;
         try {
-            console.log('updateAccessToken');
             const headers = await callWithNuxt(this.nuxtApp, () => useRequestHeaders(['cookie']));
             const baseUrl = await this.getBaseUrl();
             const response = await $fetch.raw<{response: { access_token: string}}>(`${baseUrl}api/auth/refresh`, {
@@ -166,31 +192,41 @@ export default class AuthPlugin {
                 this.store.setAccessToken(accessToken.value)
             }
 
-            console.log('access token', {
-                accesToken: accessToken,
-            });
+            if (this.updateAccess.length) {
+                this.updateAccess.forEach((item) => {
+                    item.resolve(accessToken?.value ?? null)
+                });
+            }
+
+            this.updateAccess = [];
 
             return accessToken?.value ?? null;
-
         } catch (e) {
-            console.log('updateAccessToken  error', {
-               e,
-            });
+
+            if (this.updateAccess.length) {
+                this.updateAccess.forEach((item) => {
+                    item.reject('Неизвестная ошибка')
+                });
+            }
+
+            this.updateAccess = [];
             throw e;
+        } finally {
+            this.isUpdateAccess = false;
         }
     }
 
     public async logout() {
-        const baseUrl = await this.getBaseUrl();
-
         try {
+            const headers = await callWithNuxt(this.nuxtApp, () => useRequestHeaders(['cookie']));
+            const baseUrl = await this.getBaseUrl();
             const response = await $fetch.raw(`${baseUrl}api/auth/log-out`, {
                 method: 'post',
                 retry: 0,
+                headers: {
+                    cookies: headers.cookie ?? '',
+                }
             });
-            this.store.setAccessToken(null);
-            this.store.setRefreshToken(null);
-            this.store.setUser(null);
 
             const cookies = (response.headers.get('set-cookie') || '');
 
@@ -198,9 +234,13 @@ export default class AuthPlugin {
                 appendHeader(this.nuxtApp.ssrContext?.event, 'set-cookie', cookies);
             }
         } catch (e) {
-            console.log('e', {
-                e,
-            });
+            if (process.server && this.nuxtApp.ssrContext?.event) {
+                appendHeader(this.nuxtApp.ssrContext?.event, 'set-cookie', '');
+            }
+        } finally {
+            this.store.setAccessToken(null);
+            this.store.setRefreshToken(null);
+            this.store.setUser(null);
         }
     }
 

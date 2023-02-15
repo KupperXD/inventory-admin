@@ -1,16 +1,22 @@
 import {FetchError} from "ofetch";
-import {BaseResponse, Employee, List} from "~/src/types";
+import {BaseResponse} from "~/src/types";
+import {useNuxtApp} from "#app";
 
 export default class DoRequest {
     public async refreshToken() {
-        try {
-            await $fetch<BaseResponse<List<Employee>>>('/api/auth/refresh', {
-                method: 'get',
-                retry: 0,
-            });
-        } catch(e) {
-            return Promise.reject();
+        if (process.server) {
+            return Promise.reject(false);
         }
+
+        const nuxt = useNuxtApp();
+
+        return await nuxt.$auth.refresh();
+    }
+
+    private async getBaseUrl(): Promise<string> {
+        const config = useRuntimeConfig();
+
+        return process.server ? config.public.baseApiServerUrl : config.public.baseUrl;
     }
 
     public async fetchData<T>(
@@ -20,9 +26,20 @@ export default class DoRequest {
     ) {
         const options = (method === 'post' || method === 'PATCH') ? {body: params} : {};
         try {
-            return await $fetch<BaseResponse<T>>(endpoint, {
-                method: method,
+            // Если запрос с сервера на сервер нужно спроксировать cookie
+            const headers = useRequestHeaders(['cookie'])
+            const baseUrl = await this.getBaseUrl();
+
+            const request = $fetch.create<BaseResponse<T>>({
                 retry: 0,
+                baseURL: baseUrl,
+            });
+
+            return await request(`/${endpoint}`, {
+                method: method,
+                headers: {
+                    Cookie: headers.cookie ?? '',
+                },
                 ...options,
             });
         } catch (e) {
@@ -34,13 +51,19 @@ export default class DoRequest {
 
             try {
                 await this.refreshToken();
-                return await $fetch<BaseResponse<T>>(endpoint, {
+
+                const baseUrl = await this.getBaseUrl();
+                const request = $fetch.create<BaseResponse<T>>({
+                    retry: 0,
+                    baseURL: baseUrl,
+                });
+
+                return await request(`/${endpoint}`, {
                     method: method,
                     retry: 0,
                     ...options,
                 });
             } catch (e) {
-                console.log({'error': err});
                 return Promise.reject(e)
             }
         }

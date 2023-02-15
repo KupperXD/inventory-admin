@@ -37,9 +37,9 @@ declare module 'vue' {
     }
 }
 
-export type TableHeader = { title: string }[];
+export type TableHeader = { title: string };
 
-export type TableRow = Record<string, unknown>[];
+export type TableRow = Record<string, unknown>;
 
 export type Breadcrumbs = {
     title: string,

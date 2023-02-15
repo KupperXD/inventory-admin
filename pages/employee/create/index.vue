@@ -56,7 +56,7 @@ const submitFormHandler = async () => {
 
     try {
         const response = await new DoRequest().fetchData<User | ApiErrorResponse>(
-            'post', '/api/employee', {
+            'post', 'api/employee', {
             name: nameField.value,
             email: emailField.value,
         });

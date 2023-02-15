@@ -32,7 +32,11 @@ definePageMeta({
 
 //TODO не работает при первой загрузке
 const { data, pending, refresh } = await useAsyncData(
-    () => new DoRequest().fetchData<List<Employee>>('get', '/api/employee'), {watch: []}
+    async () => {
+        const response = await new DoRequest().fetchData<List<Employee>>('get', 'api/employee');
+
+        return response;
+    },
 );
 
 const store = useBreadcrumbState();

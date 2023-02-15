@@ -31,7 +31,7 @@ const route = useRoute();
 
 //TODO не работает при первой загрузке
 const { data } = await useAsyncData(
-    () => new DoRequest().fetchData<User>('get', `/api/employee/${route.params.id}`)
+    () => new DoRequest().fetchData<User>('get', `api/employee/${route.params.id}`)
 );
 
 const nameField: UnwrapNestedRefs<FieldType> = reactive({
@@ -67,7 +67,7 @@ const submitFormHandler = async () => {
 
     try {
         const response = await new DoRequest().fetchData<User | ApiErrorResponse>(
-            'PATCH', `/api/employee/${data.value?.response.id}`, {
+            'PATCH', `api/employee/${data.value?.response.id}`, {
             name: nameField.value,
             email: emailField.value,
         });
