@@ -147,27 +147,11 @@ export default class AuthPlugin {
         }
     }
 
-    private updateAccess: {
-        resolve: (...args: unknown[]) => void;
-        reject: (...args: unknown[]) => void;
-    }[] = [];
-    private isUpdateAccess = false;
-
     public async refresh() {
-        if (this.isUpdateAccess) {
-            return new Promise((resolve, reject) => {
-                this.updateAccess.push({
-                    resolve: resolve,
-                    reject,
-                });
-            });
-        }
-
         return await this.updateAccessToken();
     }
 
     private async updateAccessToken() {
-        this.isUpdateAccess = true;
         try {
             const headers = await callWithNuxt(this.nuxtApp, () => useRequestHeaders(['cookie']));
             const baseUrl = await this.getBaseUrl();
@@ -196,26 +180,9 @@ export default class AuthPlugin {
                 this.store.setAccessToken(accessToken.value)
             }
 
-            if (this.updateAccess.length) {
-                this.updateAccess.forEach((item) => {
-                    item.resolve(accessToken?.value ?? null)
-                });
-            }
-
-            this.updateAccess = [];
-
             return accessToken?.value ?? null;
         } catch (e) {
-            if (this.updateAccess.length) {
-                this.updateAccess.forEach((item) => {
-                    item.reject('Неизвестная ошибка')
-                });
-            }
-
-            this.updateAccess = [];
             throw e;
-        } finally {
-            this.isUpdateAccess = false;
         }
     }
 
