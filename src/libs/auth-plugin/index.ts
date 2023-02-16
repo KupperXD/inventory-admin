@@ -43,10 +43,11 @@ export default class AuthPlugin {
 
 
     public async init() {
-        if (this.store.user) {
+        if (this.store.getUser) {
             return true;
         }
-        await this.fetchCurrentUser();
+
+        return await this.fetchCurrentUser();
     }
 
     public async getBaseUrl(): Promise<string> {
@@ -133,9 +134,12 @@ export default class AuthPlugin {
                     throw new Error('Token not found');
                 }
 
-                return await this.doRequestFetchUser(token).catch(() => {
-                    console.log('secind do reqhest user');
-                });
+                const response = await this.doRequestFetchUser(token);
+
+                if (response._data && !isError(response._data)) {
+                    this.store.setUser(response._data.response);
+                    return true;
+                }
 
             } catch (e) {
                 console.log('test', {
@@ -152,7 +156,7 @@ export default class AuthPlugin {
     }[] = [];
     private isUpdateAccess = false;
 
-    public refresh() {
+    public async refresh() {
         if (this.isUpdateAccess) {
             return new Promise((resolve, reject) => {
                 this.updateAccess.push({
@@ -162,7 +166,7 @@ export default class AuthPlugin {
             });
         }
 
-        return this.updateAccessToken();
+        return await this.updateAccessToken();
     }
 
     private async updateAccessToken() {
