@@ -1,6 +1,6 @@
 import {FetchError} from "ofetch";
 import {BaseResponse} from "~/src/types";
-import {NuxtApp, useNuxtApp} from "#app";
+import {callWithNuxt, NuxtApp, useNuxtApp} from "#app";
 
 export default class DoRequest {
     private readonly nuxtApp: NuxtApp;
@@ -9,13 +9,16 @@ export default class DoRequest {
         this.nuxtApp = useNuxtApp();
     }
 
-
     public async refreshToken() {
+        if (process.server) {
+            return this.nuxtApp.$auth.store.getAccessToken;
+        }
+
         return await this.nuxtApp.$auth.refresh();
     }
 
     private async getBaseUrl(): Promise<string> {
-        const config = useRuntimeConfig();
+        const config = await callWithNuxt(this.nuxtApp, () => useRuntimeConfig());
 
         return process.server ? config.public.baseApiServerUrl : config.public.baseUrl;
     }
@@ -51,7 +54,11 @@ export default class DoRequest {
             }
 
             try {
-                await this.refreshToken();
+                const token = await this.refreshToken();
+
+                if (!token) {
+                    return Promise.reject('Токен не получен');
+                }
 
                 const baseUrl = await this.getBaseUrl();
                 const request = $fetch.create<BaseResponse<T>>({
@@ -62,6 +69,9 @@ export default class DoRequest {
                 return await request(`/${endpoint}`, {
                     method: method,
                     retry: 0,
+                    headers: {
+                        cookie: `Authentication=${token}`,
+                    },
                     ...options,
                 });
             } catch (e) {

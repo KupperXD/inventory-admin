@@ -142,9 +142,6 @@ export default class AuthPlugin {
                 }
 
             } catch (e) {
-                console.log('test', {
-                    e,
-                });
                 await this.logout();
             }
         }
@@ -200,19 +197,15 @@ export default class AuthPlugin {
             }
 
             if (this.updateAccess.length) {
-                console.log('finall');
                 this.updateAccess.forEach((item) => {
                     item.resolve(accessToken?.value ?? null)
                 });
             }
 
-            console.log('after final');
-
             this.updateAccess = [];
 
             return accessToken?.value ?? null;
         } catch (e) {
-            console.log('error final');
             if (this.updateAccess.length) {
                 this.updateAccess.forEach((item) => {
                     item.reject('Неизвестная ошибка')
