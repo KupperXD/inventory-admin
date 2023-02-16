@@ -7,16 +7,23 @@
             <span class="label-text">{{props.label}}</span>
         </label>
         <div class="relative pb-4 -mb-4">
-            <input
+            <select
                 ref="field"
-                :type="props.type ?? 'text'"
-                :placeholder="props.placeholder ?? ''"
-                class="input-primary input input-bordered w-full max-w-xs"
-                :class="inputClassesComputed"
-                :value="modelValue"
                 :id="`id_${props.name}`"
-                @input="inputHandler"
-            />
+                :name="`id_${props.name}`"
+                :value="modelValue"
+                :multiple="props.multiple"
+                :class="inputClassesComputed"
+                @change="inputHandler"
+                class="input-primary input input-bordered w-full max-w-xs">
+                <option selected></option>
+                <option v-for="(option, index) in props.options"
+                    :value="option.value"
+                    :key="index"
+                >
+                    {{ option.label }}
+                </option>
+            </select>
             <span
                 class="block mt-1 text-red-500 text-xs"
                 v-if="hasErrorComputed">
@@ -26,14 +33,19 @@
     </div>
 </template>
 <script lang="ts" setup>
+import {computed, nextTick, ref} from "#imports";
 
 interface PropsInterface {
     modelValue: string | null;
-    label?: string | null;
     name: string;
-    placeholder?: string | null;
+    label?: string | null;
     error?: string | null;
-    type?: string | null;
+    multiple?: boolean;
+    placeholder?: string | null;
+    options: {
+        label: string,
+        value: unknown
+    }[];
 }
 
 const ClassesMap = {
@@ -41,8 +53,8 @@ const ClassesMap = {
 };
 
 const props = withDefaults(defineProps<PropsInterface>(), {
+    multiple: false,
     placeholder: '',
-    type: 'string',
 });
 
 const emit = defineEmits(['update:modelValue']);
@@ -61,7 +73,7 @@ const hasErrorComputed = computed(() => {
     return !!props.error;
 });
 
-const field = ref(null);
+const field = ref<HTMLSelectElement | null>(null);
 const inputHandler = async () => {
     await nextTick();
 
@@ -69,7 +81,7 @@ const inputHandler = async () => {
         return;
     }
 
-    const value = (field.value as HTMLInputElement).value;
+    const value = field.value.selectedOptions[0].value;
 
     emit('update:modelValue', value);
 };

@@ -1,6 +1,6 @@
 <template>
     <ol class="flex flex-wrap pt-1 mr-12 bg-transparent rounded-lg sm:mr-16">
-        <li class="text-sm pl-2 capitalize leading-normal before:float-left before:pr-2 before:content-['/'] dark:text-white"
+        <li class="text-sm pl-2 leading-normal before:float-left before:pr-2 before:content-['/'] dark:text-white"
             v-for="(page, index) in props.pages"
             :class="{'before:content-none': index === 0}"
         >

@@ -1,39 +1,34 @@
 <template>
     <div class="overflow-auto py-5 px-3">
         <div class="items-center block w-auto max-h-screen overflow-auto h-sidenav grow basis-full">
-            <ul class="flex flex-col pl-0 mb-0">
-                <li class="mt-0.5 w-full" v-for="navLink in navLinks">
-                    <nuxt-link
-                        :to="navLink.path"
-                        :class="{'font-semibold text-slate-700 bg-blue-100': activeLink(navLink.path)}"
-                        class="py-4 px-2 rounded-lg text-sm flex items-center whitespace-nowrap dark:text-white"
-                    >
-                        {{ navLink.title }}
-                    </nuxt-link>
-                </li>
-            </ul>
+            <UiSidebar :navLinks="navLinks"/>
         </div>
     </div>
 </template>
 <script lang="ts" setup>
-import {useRoute} from "#imports";
-const route = useRoute();
-
-const activeLink = (path: string): boolean => {
-    return (path === '/') ?  path === route.path : route.path.includes(path);
-};
+import { HomeIcon } from "~/node_modules/@heroicons/vue/24/solid";
+import { UserGroupIcon } from "~/node_modules/@heroicons/vue/24/solid";
+import { ViewColumnsIcon } from "~/node_modules/@heroicons/vue/24/solid";
 
 const navLinks: {
     title: string,
     path: string,
+    icon: unknown,
 }[] = [
     {
         title: 'Главная',
         path: '/',
+        icon: HomeIcon,
     },
     {
         title: 'Сотрудники',
         path: '/employee',
+        icon: UserGroupIcon,
+    },
+    {
+        title: 'Инвентарь',
+        path: '/inventory',
+        icon: ViewColumnsIcon,
     }
 ];
 </script>

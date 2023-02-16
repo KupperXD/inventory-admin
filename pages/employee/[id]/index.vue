@@ -19,7 +19,7 @@ import {navigateTo} from "#app";
 import {ApiErrorResponse} from "~/src/types/errors";
 import DoRequest from "~/src/services/DoRequest";
 import {useFormHelpers} from "~/src/helpers/useFormHelpers";
-import EmployeeForm from "~/components/employee/EmployeeForm.vue";
+import EmployeeForm from "~/components/employee/EmployeeCreateOrUpdate.vue";
 
 definePageMeta({
     layout: 'default',
@@ -29,7 +29,6 @@ const store = useBreadcrumbState();
 const isLoading: Ref<boolean> = ref(false);
 const route = useRoute();
 
-//TODO не работает при первой загрузке
 const { data } = await useAsyncData(
     () => new DoRequest().fetchData<User>('get', `api/employee/${route.params.id}`)
 );

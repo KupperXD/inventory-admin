@@ -21,8 +21,8 @@
     </div>
 </template>
 <script lang="ts" setup>
-import {computed, definePageMeta, navigateTo, onMounted, ref, useAsyncData} from "#imports";
-import {Employee, TableHeader, List, SuccessResponse} from "~/src/types";
+import {computed, definePageMeta, navigateTo, onMounted, useAsyncData} from "#imports";
+import {Employee, List, SuccessResponse, TableHeader} from "~/src/types";
 import useBreadcrumbState from "~/src/store/useBreadcrumbState";
 import DoRequest from "~/src/services/DoRequest";
 
@@ -30,12 +30,9 @@ definePageMeta({
     layout: 'default',
 });
 
-//TODO не работает при первой загрузке
 const { data, pending, refresh } = await useAsyncData(
     async () => {
-        const response = await new DoRequest().fetchData<List<Employee>>('get', 'api/employee');
-
-        return response;
+        return await new DoRequest().fetchData<List<Employee>>('get', 'api/employee');
     },
 );
 
@@ -48,7 +45,13 @@ const employeeTableHeader: TableHeader = [
 ];
 
 const employees = computed(() => {
-    return data.value?.response.items ?? [];
+    return data.value?.response.items.map(item => {
+        return {
+            id: item.id,
+            name: item.name,
+            email: item.email,
+        }
+    }) ?? [];
 })
 
 const editEmployeeHandler = (id: string) => {
@@ -56,7 +59,7 @@ const editEmployeeHandler = (id: string) => {
 }
 
 const deleteEmployeeHandler = async (id: string) => {
-    await new DoRequest().fetchData<SuccessResponse>('delete', `/api/employee/${id}`);
+    await new DoRequest().fetchData<SuccessResponse>('delete', `api/employee/${id}`);
     refresh();
 }
 

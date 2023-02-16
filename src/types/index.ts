@@ -1,4 +1,5 @@
 import AuthPlugin from "~/src/libs/auth-plugin";
+import {InventoryType} from "~/src/enum/InventoryType";
 
 export type FieldType = {
     value: string | null;
@@ -6,6 +7,13 @@ export type FieldType = {
     error: string | null;
     name: string;
     placeholder: string | null;
+}
+
+export type FieldSelectType<T> = FieldType & {
+    options: {
+        label: string,
+        value: T
+    }[]
 }
 
 export type BaseResponse<T> = {
@@ -37,7 +45,7 @@ declare module 'vue' {
     }
 }
 
-export type TableHeader = { title: string };
+export type TableHeader = { title: string }[];
 
 export type TableRow = Record<string, unknown>;
 
@@ -57,3 +65,20 @@ export type List<T> = {
     total: number;
     items: T[];
 };
+
+export type InventoryItem = {
+    id: number,
+    name: string,
+    type: InventoryType,
+    employee: User,
+    photo: {
+        id: number,
+        fileName: string,
+        path: string,
+        size: number
+    },
+    specifications: {
+        label: string,
+        value: string,
+    }[],
+}

@@ -18,8 +18,12 @@
                             {{ value }}
                         </div>
                         <div class="table-cell text-right p-3 align-middle border-b dark:border-white/40">
-                            <button @click="() => clickEditHandler(row.id)" type="button" class="px-3">edit</button>
-                            <button @click="() => clickDeleteHandler(row.id)" type="button" class="px-3">delete</button>
+                            <button @click="() => clickEditHandler(row.id)" type="button" class="px-3">
+                                <PencilIcon class="h-4 w-4 text-black"/>
+                            </button>
+                            <button @click="() => clickDeleteHandler(row.id)" type="button" class="px-3">
+                                <TrashIcon class="h-5 w-5 text-black"/>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -28,7 +32,8 @@
     </div>
 </template>
 <script lang="ts" setup>
-
+import { PencilIcon } from "@heroicons/vue/24/solid";
+import { TrashIcon } from "@heroicons/vue/24/solid";
 import {TableHeader, TableRow} from "~/src/types";
 
 interface PropsInterface {

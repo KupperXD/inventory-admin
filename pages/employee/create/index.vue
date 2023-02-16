@@ -19,7 +19,7 @@ import {navigateTo} from "#app";
 import {ApiErrorResponse} from "~/src/types/errors";
 import DoRequest from "~/src/services/DoRequest";
 import {useFormHelpers} from "~/src/helpers/useFormHelpers";
-import EmployeeForm from "~/components/employee/EmployeeForm.vue";
+import EmployeeForm from "~/components/employee/EmployeeCreateOrUpdate.vue";
 
 definePageMeta({
     layout: 'default',
@@ -41,7 +41,7 @@ const emailField: UnwrapNestedRefs<FieldType> = reactive({
     error: '',
     label: 'Почта',
     value: null,
-    placeholder: 'Введите почту',
+    placeholder: 'Введите Почту',
 });
 
 const {
