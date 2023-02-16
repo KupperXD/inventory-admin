@@ -1,16 +1,17 @@
 import {FetchError} from "ofetch";
 import {BaseResponse} from "~/src/types";
-import {useNuxtApp} from "#app";
+import {NuxtApp, useNuxtApp} from "#app";
 
 export default class DoRequest {
+    private readonly nuxtApp: NuxtApp;
+
+    constructor() {
+        this.nuxtApp = useNuxtApp();
+    }
+
+
     public async refreshToken() {
-        if (process.server) {
-            return Promise.reject(false);
-        }
-
-        const nuxt = useNuxtApp();
-
-        return await nuxt.$auth.refresh();
+        return await this.nuxtApp.$auth.refresh();
     }
 
     private async getBaseUrl(): Promise<string> {

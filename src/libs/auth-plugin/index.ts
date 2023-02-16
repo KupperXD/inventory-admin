@@ -133,11 +133,14 @@ export default class AuthPlugin {
                     throw new Error('Token not found');
                 }
 
-                const accessCookie = useCookie(this.ACCESS_TOKEN_PROPERTY_NAME);
-                accessCookie.value = token;
-                await this.doRequestFetchUser(token);
+                return await this.doRequestFetchUser(token).catch(() => {
+                    console.log('secind do reqhest user');
+                });
 
             } catch (e) {
+                console.log('test', {
+                    e,
+                });
                 await this.logout();
             }
         }
@@ -193,16 +196,19 @@ export default class AuthPlugin {
             }
 
             if (this.updateAccess.length) {
+                console.log('finall');
                 this.updateAccess.forEach((item) => {
                     item.resolve(accessToken?.value ?? null)
                 });
             }
 
+            console.log('after final');
+
             this.updateAccess = [];
 
             return accessToken?.value ?? null;
         } catch (e) {
-
+            console.log('error final');
             if (this.updateAccess.length) {
                 this.updateAccess.forEach((item) => {
                     item.reject('Неизвестная ошибка')
