@@ -37,7 +37,7 @@ import { TrashIcon } from "@heroicons/vue/24/solid";
 import {TableHeader, TableRow} from "~/src/types";
 
 interface PropsInterface {
-    tableHeader: TableHeader[];
+    tableHeader: TableHeader;
     tableRow: TableRow[];
 }
 

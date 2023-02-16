@@ -69,6 +69,7 @@ const submitFormHandler = async () => {
             'PATCH', `api/employee/${data.value?.response.id}`, {
             name: nameField.value,
             email: emailField.value,
+            id: data.value?.response.id,
         });
 
         if (isError(response)) {
