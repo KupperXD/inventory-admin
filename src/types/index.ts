@@ -103,3 +103,7 @@ export type FieldFile = {
     error: string | null;
     desc: string | null;
 }
+
+export type Nullable<T> = {
+    [P in keyof T]?: T[P] | null;
+};

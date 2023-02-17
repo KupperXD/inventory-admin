@@ -6,7 +6,7 @@
             :employeeField="employeeField"
             :specification="specification"
             :photoField="photoField"
-            :isNew="true"
+            :isNew="false"
             :isLoading="isLoading"
             @addSpecification="addSpecification"
             @deleteSpecification:value="deleteSpecification"
@@ -16,7 +16,7 @@
     </div>
 </template>
 <script lang="ts" setup>
-import {definePageMeta, onMounted} from "#imports";
+import {definePageMeta, onMounted, useAsyncData, useRoute} from "#imports";
 import useBreadcrumbState from "~/src/store/useBreadcrumbState";
 import {InventoryItem} from "~/src/types";
 import {navigateTo} from "#app";
@@ -31,6 +31,11 @@ definePageMeta({
 });
 
 const store = useBreadcrumbState();
+const route = useRoute();
+
+const { data: inventoryDetail } = await useAsyncData(
+    () => new DoRequest().fetchData<InventoryItem>('get', `api/inventory-item/${route.params.id}`)
+);
 
 const {
     nameField,
@@ -43,14 +48,17 @@ const {
     getRequestParams,
     deleteSpecification,
     addSpecification,
+    getTypeValue,
+    specificationLabelDefaultField,
+    specificationValueDefaultField,
 } = await useInventory();
+
 
 const {
     resetErrors,
     setFormErrors,
     isError
 } = useFormHelpers();
-
 
 const submitFormHandler = async () => {
     isLoading.value = true;
@@ -66,7 +74,7 @@ const submitFormHandler = async () => {
 
         if (isError(response)) {
             if (Array.isArray(response.error.data)) {
-                setFormErrors([nameField, typeField, employeeField], response.error.data);
+                setFormErrors([nameField, typeField, employeeField, photoField],response.error.data);
                 return;
             }
         }
@@ -81,6 +89,25 @@ const submitFormHandler = async () => {
     }
 }
 
+const fillFields = (inventory: InventoryItem) => {
+    nameField.value = inventory.name;
+    typeField.value = getTypeValue(inventory.type);
+    employeeField.value = inventory.employee.name;
+    photoField.value = inventory.photo;
+    specification.value = inventory.specifications.map(item => {
+        return {
+            label: {
+                ...specificationLabelDefaultField,
+                value: item.label
+            },
+            value: {
+                ...specificationValueDefaultField,
+                value: item.label
+            },
+        }
+    })
+}
+
 onMounted(async () => {
     store.setBreadcrumbs([
         {
@@ -92,8 +119,12 @@ onMounted(async () => {
             path: '/inventory'
         },
         {
-            title: 'Добавление инвентаря',
+            title: 'Редактирование инвентаря',
         }
     ]);
+
+    if (inventoryDetail.value) {
+        fillFields(inventoryDetail.value.response);
+    }
 });
 </script>

@@ -21,18 +21,18 @@
     </div>
 </template>
 <script lang="ts" setup>
-import {computed, definePageMeta, onMounted, useAsyncData} from "#imports";
+import {computed, definePageMeta, navigateTo, onMounted, useAsyncData} from "#imports";
 import useBreadcrumbState from "~/src/store/useBreadcrumbState";
 import DoRequest from "~/src/services/DoRequest";
 import {InventoryItem, List, SuccessResponse, TableHeader} from "~/src/types";
 import {InventoryType, InventoryTypeValue} from "~/src/enum/InventoryType";
+import {useInventory} from "~/src/use/useInventory";
 
 definePageMeta({
     layout: 'default',
 });
 
 const store = useBreadcrumbState();
-
 
 const { data, pending, refresh } = await useAsyncData(
     async () => {
@@ -47,16 +47,9 @@ const inventoryTableHeader: TableHeader = [
     {title: 'Владелец'},
 ];
 
-const getTypeValue = (type: InventoryType) => {
-    switch (type){
-        case InventoryType.COMPUTER:
-            return InventoryTypeValue.COMPUTER;
-        case InventoryType.FURNITURE:
-            return InventoryTypeValue.FURNITURE;
-        case InventoryType.PERIPHERY:
-            return InventoryTypeValue.PERIPHERY;
-    }
-}
+const {
+    getTypeValue,
+} = await useInventory();
 
 const inventories = computed(() => {
     return data.value?.response.items.map(item => {
@@ -70,7 +63,7 @@ const inventories = computed(() => {
 });
 
 const editInventoryHandler = (id: string) => {
-
+    navigateTo(`/inventory/${id}`);
 }
 
 const deleteInventoryHandler = async (id: string) => {

@@ -86,7 +86,6 @@
                     :name="props.photoField.name"
                     :desc="props.photoField.desc"
                     :error="props.photoField.error"
-                    :loading="isLoadingUploadFile"
                     v-model="props.photoField.value"
                     @update:file="updateFile"
                 />
@@ -118,7 +117,6 @@ interface PropsInterface {
         value: UnwrapNestedRefs<FieldType>,
     }[],
     photoField: UnwrapNestedRefs<FieldFile>
-    isLoadingUploadFile: boolean,
 }
 
 const props = withDefaults(defineProps<PropsInterface>(), {
