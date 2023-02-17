@@ -66,7 +66,7 @@
                         />
                         <button
                             v-if="index !== 0"
-                            @click="() => clickDeleteHandler(index)"
+                            @click="() => deleteSpecificationHandler(index)"
                             type="button"
                             class="px-3 pt-8"
                         >
@@ -81,6 +81,15 @@
                 >
                     + Добавить характеристику
                 </button>
+                <FileDownload
+                    :label="props.photoField.label"
+                    :name="props.photoField.name"
+                    :desc="props.photoField.desc"
+                    :error="props.photoField.error"
+                    :loading="isLoadingUploadFile"
+                    v-model="props.photoField.value"
+                    @update:file="updateFile"
+                />
                 <div class="card-actions mt-8">
                     <UiButton :loading="props.isLoading">
                         Сохранить
@@ -94,8 +103,9 @@
 import Field from "~/components/ui/forms/Field.vue";
 import Select from "~/components/ui/forms/Select.vue";
 import {UnwrapNestedRefs} from "@vue/reactivity";
-import {FieldSelectType, FieldType} from "~/src/types";
+import {FieldFile, FieldSelectType, FieldType} from "~/src/types";
 import { TrashIcon } from "@heroicons/vue/24/solid";
+import FileDownload from "~/components/ui/forms/FileDownload.vue";
 
 interface PropsInterface {
     nameField: UnwrapNestedRefs<FieldType>;
@@ -107,6 +117,8 @@ interface PropsInterface {
         label: UnwrapNestedRefs<FieldType>,
         value: UnwrapNestedRefs<FieldType>,
     }[],
+    photoField: UnwrapNestedRefs<FieldFile>
+    isLoadingUploadFile: boolean,
 }
 
 const props = withDefaults(defineProps<PropsInterface>(), {
@@ -117,6 +129,7 @@ const emit = defineEmits([
     'submit',
     'addSpecification',
     'deleteSpecification:value',
+    'update:file',
 ]);
 
 const submitHandler = () => {
@@ -127,7 +140,11 @@ const addSpecificationHandler = () => {
     emit('addSpecification');
 }
 
-const clickDeleteHandler = (id: number) => {
+const deleteSpecificationHandler = (id: number) => {
     emit('deleteSpecification:value', id);
+}
+
+const updateFile = (file: File | null) => {
+    emit('update:file', file);
 }
 </script>

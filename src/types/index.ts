@@ -20,6 +20,17 @@ export type BaseResponse<T> = {
     response: T;
 };
 
+export type FormDataItemObject = {
+    [key: string]:
+        | string
+        | string[]
+        | number[]
+        | number
+        | null
+        | boolean
+        | Record<string, any>
+}  | FormData;
+
 export type SuccessResponse = {
     response: {
         success: boolean;
@@ -67,18 +78,28 @@ export type List<T> = {
 };
 
 export type InventoryItem = {
-    id: number,
-    name: string,
-    type: InventoryType,
-    employee: User,
-    photo: {
-        id: number,
-        fileName: string,
-        path: string,
-        size: number
-    },
+    id: number;
+    name: string;
+    type: InventoryType;
+    employee: User;
+    photo: File;
     specifications: {
-        label: string,
-        value: string,
-    }[],
+        label: string;
+        value: string;
+    }[];
+}
+
+export type File = {
+    id: number;
+    fileName: string;
+    path: string;
+    size: number;
+};
+
+export type FieldFile = {
+    value: File | null;
+    label: string | null;
+    name: string;
+    error: string | null;
+    desc: string | null;
 }

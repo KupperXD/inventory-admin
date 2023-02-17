@@ -5,10 +5,13 @@
             :typeField="typeField"
             :employeeField="employeeField"
             :specification="specification"
+            :photoField="photoField"
             :isNew="true"
             :isLoading="isLoading"
+            :isLoadingUploadFile="isLoadingUploadFile"
             @addSpecification="addSpecification"
             @deleteSpecification:value="deleteSpecification"
+            @update:file="updateFile"
             @submit="submitFormHandler"
         />
     </div>
@@ -18,12 +21,11 @@ import {definePageMeta, onMounted, reactive, ref, useAsyncData} from "#imports";
 import useBreadcrumbState from "~/src/store/useBreadcrumbState";
 import {Ref} from "vue";
 import {UnwrapNestedRefs} from "@vue/reactivity";
-import {Employee, FieldSelectType, FieldType, List, User} from "~/src/types";
+import {Employee, FieldFile, FieldSelectType, FieldType, List, User, File} from "~/src/types";
 import {navigateTo} from "#app";
 import {ApiErrorResponse} from "~/src/types/errors";
 import DoRequest from "~/src/services/DoRequest";
 import {useFormHelpers} from "~/src/helpers/useFormHelpers";
-import EmployeeForm from "~/components/employee/EmployeeCreateOrUpdate.vue";
 import InventoryCreateOrUpdate from "~/components/inventory/InventoryCreateOrUpdate.vue";
 import {InventoryType, InventoryTypeValue} from "~/src/enum/InventoryType";
 
@@ -33,6 +35,7 @@ definePageMeta({
 
 const store = useBreadcrumbState();
 const isLoading: Ref<boolean> = ref(false);
+const isLoadingUploadFile: Ref<boolean> = ref(false);
 
 const optionsType = [
     {
@@ -102,6 +105,14 @@ const specificationValueDefaultField: UnwrapNestedRefs<FieldType> = reactive({
     placeholder: 'Введите Описание атрибута',
 });
 
+const photoField: UnwrapNestedRefs<FieldFile> = reactive({
+    name: 'file',
+    error: '',
+    label: 'Фото инвентаря',
+    value: null,
+    desc: '1920×1080px, не более 50Мб',
+});
+
 const specification = ref<{
     label: UnwrapNestedRefs<FieldType>,
     value: UnwrapNestedRefs<FieldType>,
@@ -144,14 +155,19 @@ const getRequestParams = () => {
     return {
         name: nameField.value,
         type: typeField.value,
-        employeeId: employeeField.value,
+        employeeId: employeeField.value ? +employeeField.value : null,
         specification: specification.value.map(item => {
             return {
                 label: item.label.value,
                 value: item.value.value,
             }
         }),
+        photoId: photoField.value?.id ?? null
     }
+}
+
+const updateFile = (file: File | null) => {
+    photoField.value = file;
 }
 
 const submitFormHandler = async () => {

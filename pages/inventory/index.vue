@@ -64,7 +64,7 @@ const inventories = computed(() => {
             id: item.id,
             name: item.name,
             type: getTypeValue(item.type),
-            employee: item.employee,
+            employee: item.employee.name,
         }
     }) ?? [];
 });

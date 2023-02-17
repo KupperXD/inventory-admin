@@ -1,6 +1,7 @@
 import {FetchError} from "ofetch";
-import {BaseResponse} from "~/src/types";
+import {BaseResponse, FormDataItemObject} from "~/src/types";
 import {callWithNuxt, NuxtApp, useNuxtApp} from "#app";
+import {useRequestHeaders, useRuntimeConfig} from "#imports";
 
 export default class DoRequest {
     private readonly nuxtApp: NuxtApp;
@@ -26,7 +27,7 @@ export default class DoRequest {
     public async fetchData<T>(
         method: 'post' | 'get' | 'PATCH' | 'delete',
         endpoint: string,
-        params: Record<string, unknown> = {}
+        params: FormDataItemObject = {}
     ) {
         const options = (method === 'post' || method === 'PATCH') ? {body: params} : {};
         try {
@@ -68,7 +69,6 @@ export default class DoRequest {
 
                 return await request(`/${endpoint}`, {
                     method: method,
-                    retry: 0,
                     headers: {
                         cookie: `Authentication=${token}`,
                     },

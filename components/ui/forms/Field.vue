@@ -20,12 +20,13 @@
             <span
                 class="block mt-1 text-red-500 text-xs"
                 v-if="hasErrorComputed">
-            {{props.error}}
-        </span>
+                {{props.error}}
+            </span>
         </div>
     </div>
 </template>
 <script lang="ts" setup>
+import {computed} from "#imports";
 
 interface PropsInterface {
     modelValue: string | null;
