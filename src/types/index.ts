@@ -85,7 +85,7 @@ export type InventoryItem = {
     id: number;
     name: string;
     type: InventoryType;
-    employee: User;
+    employee: Employee | null;
     photo: FileType;
     specifications: {
         label: string;

@@ -11,9 +11,9 @@
                 ref="field"
                 :id="`id_${props.name}`"
                 :name="`id_${props.name}`"
-                :value="modelValue"
                 :multiple="props.multiple"
                 :class="inputClassesComputed"
+                v-model="value"
                 @change="inputHandler"
                 class="input-primary input input-bordered w-full max-w-xs">
                 <option selected></option>
@@ -85,6 +85,19 @@ const inputHandler = async () => {
 
     emit('update:modelValue', value);
 };
+
+const value = ref(props.modelValue);
+
+watch(() => props.modelValue, (newValue, oldValue) => {
+   if (newValue === oldValue) {
+       return;
+   }
+
+   if (field.value) {
+       field.value.value = newValue ?? '';
+   }
+   value.value = newValue;
+});
 
 </script>
 

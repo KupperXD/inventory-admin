@@ -33,7 +33,22 @@ export default class DoRequest {
         endpoint: string,
         params: FormDataItemObject = {}
     ) {
-        const options = (method === 'post' || method === 'PATCH') ? {body: params} : {};
+        let options: Record<string, unknown> = {};
+
+        if (method === 'post' || method === 'PATCH') {
+            options = {
+                ...options,
+                body: params,
+            }
+        }
+
+        if (method === 'get') {
+            options = {
+                ...options,
+                query: params,
+            }
+        }
+
         try {
             // Если запрос с сервера на сервер нужно спроксировать cookie
             const headers = useRequestHeaders(['cookie'])

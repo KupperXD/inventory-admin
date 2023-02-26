@@ -13,9 +13,18 @@
         <div class="flex flex-wrap -mx-3">
             <UiTable
                 :tableHeader="inventoryTableHeader"
-                :tableRow="inventories"
+                :tableRow="inventoriesComputed"
                 @clickEdit:value="editInventoryHandler"
                 @clickDelete:value="deleteInventoryHandler"
+            />
+        </div>
+        <div>
+            <UiPaginations
+                v-if="lastPageComputed && lastPageComputed > 1"
+                :max="lastPageComputed"
+                :max-page="8"
+                v-model="paginationModel"
+                @update:modelValue="clickPaginationHandler"
             />
         </div>
     </div>
@@ -33,12 +42,23 @@ definePageMeta({
 });
 
 const store = useBreadcrumbState();
+const paginationModel = ref(1);
+const doRequest = new DoRequest();
+const fetchInventoryItems = async () => {
+    return await doRequest.fetchData<List<InventoryItem>>('get', 'api/inventory-item', {
+        page: paginationModel.value,
+    });
+};
 
 const { data, pending, refresh } = await useAsyncData(
     async () => {
-        return await new DoRequest().fetchData<List<InventoryItem>>('get', 'api/inventory-item');
+        return await fetchInventoryItems();
     },
 );
+
+const lastPageComputed = computed(() => {
+    return data.value?.response?.lastPage ?? 0;
+});
 
 const inventoryTableHeader: TableHeader = [
     {title: 'ID'},
@@ -51,13 +71,13 @@ const {
     getTypeValue,
 } = await useInventory();
 
-const inventories = computed(() => {
+const inventoriesComputed = computed(() => {
     return data.value?.response.items.map(item => {
         return {
             id: item.id,
             name: item.name,
             type: getTypeValue(item.type),
-            employee: item.employee.name,
+            employee: item.employee?.name ?? '',
         }
     }) ?? [];
 });
@@ -68,8 +88,12 @@ const editInventoryHandler = (id: string) => {
 
 const deleteInventoryHandler = async (id: string) => {
     await new DoRequest().fetchData<SuccessResponse>('delete', `api/inventory-item/${id}`);
-    refresh();
+    void refresh();
 }
+
+const clickPaginationHandler = () => {
+    refresh();
+};
 
 onMounted(() => {
     store.setBreadcrumbs([

@@ -61,16 +61,20 @@ const {
 } = useFormHelpers();
 
 const submitFormHandler = async () => {
-    isLoading.value = true;
     resetErrors([nameField, typeField, employeeField]);
 
     const requestParams = getRequestParams();
+    const id = inventoryDetail.value?.response.id ?? null;
 
-    isLoading.value = false;
+    if (isLoading.value || !id) {
+        return;
+    }
+
+    isLoading.value = true;
 
     try {
         const response = await new DoRequest().fetchData<InventoryItem | ApiErrorResponse>(
-            'post', 'api/inventory-item', requestParams );
+            'PATCH', `api/inventory-item/${id}`, requestParams );
 
         if (isError(response)) {
             if (Array.isArray(response.error.data)) {
@@ -89,10 +93,14 @@ const submitFormHandler = async () => {
     }
 }
 
-const fillFields = (inventory: InventoryItem) => {
+const fillFields = (inventory: InventoryItem | null) => {
+    if (!inventory) {
+        return;
+    }
+
     nameField.value = inventory.name;
-    typeField.value = getTypeValue(inventory.type);
-    employeeField.value = inventory.employee.name;
+    typeField.value = inventory.type;
+    employeeField.value = inventory.employee?.id.toString() ?? '';
     photoField.value = inventory.photo;
     specification.value = inventory.specifications.map(item => {
         return {
@@ -107,6 +115,7 @@ const fillFields = (inventory: InventoryItem) => {
         }
     })
 }
+
 
 onMounted(async () => {
     store.setBreadcrumbs([
@@ -123,8 +132,6 @@ onMounted(async () => {
         }
     ]);
 
-    if (inventoryDetail.value) {
-        fillFields(inventoryDetail.value.response);
-    }
+    fillFields(inventoryDetail.value?.response ?? null);
 });
 </script>
