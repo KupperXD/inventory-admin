@@ -1,7 +1,7 @@
 import {InventoryType, InventoryTypeValue} from "~/src/enum/InventoryType";
 import {reactive, ref, useAsyncData} from "#imports";
 import DoRequest from "~/src/services/DoRequest";
-import {Employee, FieldFile, FieldSelectType, FieldType, File, List, Nullable} from "~/src/types";
+import {Employee, FieldFile, FieldSelectType, FieldType, FileType, List, Nullable} from "~/src/types";
 import {UnwrapNestedRefs} from "@vue/reactivity";
 import {Ref} from "vue";
 
@@ -141,7 +141,7 @@ export async function useInventory() {
         }
     }
 
-    const updateFile = (file: File | null) => {
+    const updateFile = (file: FileType | null) => {
         photoField.value = file;
     }
 

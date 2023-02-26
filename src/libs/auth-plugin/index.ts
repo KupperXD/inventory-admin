@@ -3,7 +3,7 @@ import {FetchError} from "ofetch";
 import {BaseResponse} from "~/src/types";
 import {ApiErrorResponse} from "~/src/types/errors";
 import useAuthState from "~/src/libs/useAuthState";
-import {appendHeader, H3Event} from 'h3';
+import {appendHeader} from 'h3';
 import SetCookieParser, {Cookie} from 'set-cookie-parser';
 import {navigateTo} from "#imports";
 

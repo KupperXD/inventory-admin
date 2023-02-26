@@ -16,6 +16,10 @@ export type FieldSelectType<T> = FieldType & {
     }[]
 }
 
+export type HasId = {
+    id: number | string;
+}
+
 export type BaseResponse<T> = {
     response: T;
 };
@@ -58,7 +62,7 @@ declare module 'vue' {
 
 export type TableHeader = { title: string }[];
 
-export type TableRow = Record<string, unknown>;
+export type TableRow = HasId & Record<string, unknown>;
 
 export type Breadcrumbs = {
     title: string,
@@ -82,14 +86,14 @@ export type InventoryItem = {
     name: string;
     type: InventoryType;
     employee: User;
-    photo: File;
+    photo: FileType;
     specifications: {
         label: string;
         value: string;
     }[];
 }
 
-export type File = {
+export type FileType = {
     id: number;
     fileName: string;
     path: string;
@@ -97,7 +101,7 @@ export type File = {
 };
 
 export type FieldFile = {
-    value: File | null;
+    value: FileType | null;
     label: string | null;
     name: string;
     error: string | null;

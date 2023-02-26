@@ -51,14 +51,14 @@ const emit = defineEmits([
 /**
  * Клик на кнопку редактирования
  */
-const clickEditHandler = (id: string) => {
+const clickEditHandler = (id: string | number) => {
     emit('clickEdit:value', id);
 };
 
 /**
  * Клик на кнопку удаления
  */
-const clickDeleteHandler = (id: string) => {
+const clickDeleteHandler = (id: string | number) => {
     emit('clickDelete:value', id);
 };
 </script>

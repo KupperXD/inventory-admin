@@ -55,11 +55,12 @@ import { defineProps, defineEmits } from 'vue';
 import { XMarkIcon } from "@heroicons/vue/24/outline";
 import {ref, watchEffect} from "#imports";
 import DoRequest from "~/src/services/DoRequest";
-import {ApiErrorResponse} from "~/src/types/errors";
+import type {ApiErrorResponse} from "~/src/types/errors";
 import {useFormHelpers} from "~/src/helpers/useFormHelpers";
+import type {FileType} from "~/src/types";
 
 interface PropsInterface {
-    modelValue: File | null;
+    modelValue: FileType | null;
     label: string | null;
     name: string;
     error: string | null;

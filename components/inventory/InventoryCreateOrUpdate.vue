@@ -84,7 +84,7 @@
                 <FileDownload
                     :label="props.photoField.label"
                     :name="props.photoField.name"
-                    :desc="props.photoField.desc"
+                    :desc="props.photoField.desc ?? ''"
                     :error="props.photoField.error"
                     v-model="props.photoField.value"
                     @update:file="updateFile"
