@@ -12,6 +12,7 @@
         </div>
         <div class="flex flex-wrap -mx-3">
             <UiTable
+                :loading="pending"
                 :tableHeader="inventoryTableHeader"
                 :tableRow="inventoriesComputed"
                 @clickEdit:value="editInventoryHandler"
@@ -95,15 +96,13 @@ const clickPaginationHandler = () => {
     refresh();
 };
 
-onMounted(() => {
-    store.setBreadcrumbs([
-        {
-            title: 'Главная',
-            path: '/',
-        },
-        {
-            title: 'Инвентарь',
-        }
-    ]);
-});
+store.setBreadcrumbs([
+    {
+        title: 'Главная',
+        path: '/',
+    },
+    {
+        title: 'Инвентарь',
+    }
+]);
 </script>

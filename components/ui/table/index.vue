@@ -1,6 +1,6 @@
 <template>
     <div class="flex-none w-full max-w-full px-3">
-        <div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 border-transparent border-solid shadow-xl dark:bg-slate-850 dark:shadow-dark-xl rounded-2xl bg-clip-border">
+        <div class="overflow-hidden relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 border-transparent border-solid shadow-xl dark:bg-slate-850 dark:shadow-dark-xl rounded-2xl bg-clip-border">
             <div class="table w-full text-xs">
                 <div class="table-header-group">
                     <div class="table-row">
@@ -28,6 +28,11 @@
                     </div>
                 </div>
             </div>
+            <template v-if="loading">
+                <div class="flex justify-center items-center absolute top-0 bottom-0 left-0 right-0 bg-gray-500/20">
+                    <UiLoader/>
+                </div>
+            </template>
         </div>
     </div>
 </template>
@@ -39,9 +44,12 @@ import {TableHeader, TableRow} from "~/src/types";
 interface PropsInterface {
     tableHeader: TableHeader;
     tableRow: TableRow[];
+    loading?: boolean;
 }
 
-const props = defineProps<PropsInterface>();
+const props = withDefaults(defineProps<PropsInterface>(), {
+    loading: false,
+});
 
 const emit = defineEmits([
     'clickEdit:value',

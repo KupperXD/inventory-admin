@@ -90,7 +90,9 @@
                     @update:file="updateFile"
                 />
                 <div class="card-actions mt-8">
-                    <UiButton :loading="props.isLoading">
+                    <UiButton
+                        class="btn-secondary"
+                        :loading="props.isLoading">
                         Сохранить
                     </UiButton>
                 </div>

@@ -12,6 +12,7 @@
         </div>
         <div class="flex flex-wrap -mx-3">
             <UiTable
+                :loading="pending"
                 :tableHeader="employeeTableHeader"
                 :tableRow="employees"
                 @clickEdit:value="editEmployeeHandler"
@@ -88,15 +89,13 @@ const clickPaginationHandler = () => {
     refresh();
 };
 
-onMounted(async () => {
-    store.setBreadcrumbs([
-        {
-            title: 'Главная',
-            path: '/',
-        },
-        {
-            title: 'Сотрудники',
-        }
-    ]);
-});
+store.setBreadcrumbs([
+    {
+        title: 'Главная',
+        path: '/',
+    },
+    {
+        title: 'Сотрудники',
+    }
+]);
 </script>
