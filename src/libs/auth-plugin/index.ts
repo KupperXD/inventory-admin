@@ -214,7 +214,7 @@ export default class AuthPlugin {
         }
     }
 
-    private async goToLoginRoute() {
+    public async goToLoginRoute() {
         const currentPath = this.nuxtApp?.ssrContext?.event?.path ?? '';
 
         if (currentPath.includes('login')) {

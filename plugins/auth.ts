@@ -1,5 +1,5 @@
 import AuthPlugin from "~/src/libs/auth-plugin";
-import {navigateTo, NuxtApp} from "#app";
+import {NuxtApp} from "#app";
 
 export default defineNuxtPlugin(async (nuxtApp) => {
     const ctx = nuxtApp as unknown as NuxtApp;
@@ -9,6 +9,24 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     try {
         await authPlugin.init();
     } catch (e) {}
+
+    addRouteMiddleware('auth', async (to) => {
+        const hasLogin = authPlugin.store.hasLogin;
+        const routeName = to.name;
+
+        if (!hasLogin && routeName === 'login') {
+            return;
+        }
+
+        if (!hasLogin) {
+            return '/login';
+        }
+
+        return;
+
+    }, {
+        global: true,
+    });
 
     return {
         provide: {

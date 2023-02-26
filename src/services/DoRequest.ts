@@ -18,6 +18,10 @@ export default class DoRequest {
         return await this.nuxtApp.$auth.refresh();
     }
 
+    public async goToLogin() {
+        return await this.nuxtApp.$auth.goToLoginRoute();
+    };
+
     private async getBaseUrl(): Promise<string> {
         const config = await callWithNuxt(this.nuxtApp, () => useRuntimeConfig());
 
@@ -75,6 +79,12 @@ export default class DoRequest {
                     ...options,
                 });
             } catch (e) {
+                const err = e as FetchError;
+
+                if (err.response?.status === 401) {
+                    await this.goToLogin();
+                }
+
                 return Promise.reject(e)
             }
         }
