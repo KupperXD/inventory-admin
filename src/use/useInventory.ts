@@ -32,7 +32,7 @@ export async function useInventory() {
 
     const {data: employee} = await useAsyncData(
         async () => {
-            return await new DoRequest().fetchData<List<Employee>>('get', 'api/employee');
+            return await new DoRequest().fetchData<List<Employee>>('get', 'api/employee/all');
         },
     );
 
