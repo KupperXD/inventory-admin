@@ -5,4 +5,5 @@
     </NuxtLayout>
 </template>
 <script lang="ts" setup>
+console.log('app');
 </script>

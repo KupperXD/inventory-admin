@@ -14,7 +14,6 @@ definePageMeta({
 });
 
 const store = useBreadcrumbState();
-
 onMounted(() => {
     store.setBreadcrumbs([{
         title: 'Главная'
